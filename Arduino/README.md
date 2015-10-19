@@ -7,6 +7,8 @@ When using the Arduino IDE, change the default sketchbook location to this direc
 ####IMU_Test
 A test sketch for the MPU-6050 breakout board from Sparkfun (6 DOF IMU).  Based on the MPU6050_DMP6 example sketch.
 
+####LED Control W/ XBee
+Connect the Sending XBee on the XBee Explorer via USB to the computer.  On XCTU, use Add Devices to connect the XBee.  Once connected select it from the list of Radio Modules and wait for XCTU to read the configuration.  Click the Console icon in the top right, and then connect it by plugging in the plug in the top left of the console window.  Use the console to control the LED, ddh writes high, ddl writes low to pin 13 (first d means digital write, second d is 13 in hexadecimal, h for high, l for low).
 
 ###Libraries
 
