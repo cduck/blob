@@ -34,10 +34,16 @@ Hardware Hookup:
 // SoftwareSerial is used to communicate with the XBee
 #include <SoftwareSerial.h>
 
+typedef enum {
+  POT,POTOFF,MAX,OFF
+} state_t;
+
+
 const int potPos = A0;
 const int led = 11;
 int pot = 0;
-char ctr = ' ';
+char c = ' ';
+state_t state = OFF;
 SoftwareSerial XBee(2, 3); // Arduino RX, TX (XBee Dout, Din)
 
 void setup()
@@ -56,33 +62,45 @@ void loop()
   // In loop() we continously check to see if a command has been
   //  received.
   
-  if (Serial.available());
-  {
+  if (Serial.available()){
     char c = Serial.read();
-  switch (c)
-  {
-      case 'n':      // If received 'n'
-        Serial.println("Beginning potentiometer control...");
-        ctrlOn();    // Turn on pot control
-        ctr = 'n';
-        break;
-      case 'f':      // If received 'f'
-        ctrlOff();   // Turn off pot control
-        ctr = 'f';
-        break;
-      case 'x':      // If received 'x'
-        ledMax();    // Turn LED to max
-        ctr = 'x';
-        break;
-      case 'o':      // If received 'o'
-        ledOff();    // Turn LED off
-        ctr = 'o';
-        break;
+    switch (c)
+      {
+        case 'n':      // If received 'n'
+          Serial.println("Potentiometer control on...");
+          state = POT;    // Turn on pot control
+          break;
+        case 'f':      // If received 'f'
+          Serial.println("Ending potentiometer control...");
+          state = POTOFF;   // Turn off pot control
+          break;
+        case 'x':      // If received 'x'
+          Serial.println("Setting LED to MAXIMUM POWER");
+          state = MAX;    // Turn LED to max
+          break;
+        case 'o':      // If received 'o'
+          Serial.println("Turning LED off...");
+          state = OFF;    // Turn LED off
+          break;
+      }
   }
+
+  switch (state) {
+    case POT:
+      ctrlOn();
+      break;
+    case POTOFF:
+      ctrlOff();
+      break;
+    case MAX:
+      ledMax();
+      break;
+    default:
+      ledOff();
+      break;
   }
- 
-  delay(500);
-  Serial.println(ctr);
+  delay(50);
+  // Serial.println(ctr);
 }
 
 // Turn on potentiometer control
@@ -102,14 +120,12 @@ void ctrlOff()
   // Type 'f' to turn off potentiometer control, leaving the 
   // LED at the previous setting
   // Print a message to let the control know of our intentions:
-  Serial.println("Ending potentiometer control...");
 }
 
 void ledMax()
 {
   // Type 'x' to turn the LED to max power
   // Print a message to let the control know of our intentions:
-  Serial.println("Setting LED to MAXIMUM POWER");
   digitalWrite(led, 255); // Turn on LED to max
 }
 
@@ -117,7 +133,6 @@ void ledOff()
 {
   // Type 'o' to turn off the LED
   // Print a message to let the control know of our intentions:
-  Serial.println("Turning LED off...");
   digitalWrite(led, 0); // Turn off LED
 }
 
