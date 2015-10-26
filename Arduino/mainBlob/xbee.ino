@@ -8,7 +8,7 @@ SoftwareSerial XBee(2, 3); // Arduino RX, TX (XBee Dout, Din)
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 
-void XBsetup() {
+void XBSetup() {
   // Initialize Bee Software Serial port. Make sure the baud
   // rate matches your XBee setting (9600 is default).
   Serial.begin(9600); 
@@ -18,7 +18,7 @@ void XBsetup() {
 // ===                    XBEE PROGRAM LOOP                     ===
 // ================================================================
 
-byte XBloop() {
+byte XBLoop() {
   // if data is avalailable from the Serial port (XBee), go 
   // through cases and change state to change function of blob 
   if (Serial.available()) {
@@ -36,5 +36,5 @@ byte XBloop() {
           return STP;    // Set state to STOP
       }
   }
-  return NONE;
+  return NONE; // Default case is no change
 }

@@ -10,10 +10,10 @@ byte state = STP; // Set default command state
 // ================================================================
 
 void setup() {
-  IMUsetup();
-  XBsetup();
-  MCsetup();
-  Gsetup();
+  IMUSetup();
+  XBSetup();
+  MCSetup();
+  GSetup();
 }
 
 // ================================================================
@@ -21,9 +21,9 @@ void setup() {
 // ================================================================
 
 void loop() {
-  byte xbcmd = XBloop();
-  float imuout = IMUloop();
-  int16_t *motor = MCloop(xbcmd,imuout,lsGet());
+  byte xbcmd = XBLoop();
+  float imuout = IMULoop();
+  int16_t *motor = MCLoop(xbcmd,imuout,lsGet());
   Gloop();
   
 }

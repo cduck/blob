@@ -1,10 +1,10 @@
-
+int16_t motor[4] = {0,0,0,0};
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 
-void MCsetup() {
+void MCSetup() {
   
 }
 
@@ -13,12 +13,16 @@ void MCsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-int16_t *MCloop(byte xbcmd,float imuout, bool *lsout) {
+int16_t *MCLoop(byte xbcmd,float imuout, bool *lsout) {
 
   // If there is a new command from the XBee, change the current 
   // state for calculating motor distances.
   if (xbcmd != NONE) {
     state = xbcmd;
+  }
+
+  if (imuout == NAN) {
+    
   }
 
   // Return an array of motor values using the functions below

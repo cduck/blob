@@ -128,7 +128,7 @@ void dmpDataReady() {
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 
-void IMUsetup() {
+void IMUSetup() {
     // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         Wire.begin();
@@ -210,7 +210,7 @@ void IMUsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-float IMUloop() {
+float IMULoop() {
     // if programming failed, don't try to do anything
     if (!dmpReady) return NAN;
 
@@ -255,23 +255,10 @@ float IMUloop() {
 
         #ifdef OUTPUT_READABLE_YAWPITCHROLL
             // display Euler angles in degrees
-            unsigned long t = micros();
             mpu.dmpGetQuaternion(&q, fifoBuffer);
             mpu.dmpGetGravity(&gravity, &q);
             mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-            t = micros() - t;
-            Serial.print(t);
-            Serial.print("\t");
-            Serial.print("ypr\t");
-            Serial.print(ypr[0] * 180/M_PI);
-            Serial.print("\t");
-            Serial.print(ypr[1] * 180/M_PI);
-            Serial.print("\t");
-            Serial.println(ypr[2] * 180/M_PI);
+            return ypr[0]; // Returns the yaw angle
         #endif
-
-        // blink LED to indicate activity
-        blinkState = !blinkState;
-        digitalWrite(LED_PIN, blinkState);
     }
 }
