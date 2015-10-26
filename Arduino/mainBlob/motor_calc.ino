@@ -1,5 +1,4 @@
-int16_t motorArray[4,] = {0,0,0,0};
-state_t state = STP; // Set default command state
+
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
@@ -14,26 +13,31 @@ void MCsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-int16_t *MCloop(state_t xbcmd,float imuout,bool *lsout) {
+int16_t *MCloop(byte xbcmd,float imuout, bool *lsout) {
 
+  // If there is a new command from the XBee, change the current 
+  // state for calculating motor distances.
   if (xbcmd != NONE) {
     state = xbcmd;
   }
 
+  // Return an array of motor values using the functions below
   switch (state) {
     case FWD:
-      return fwd();
+      return fwd(imuout);
     case BACK:
-      return back();
+      return back(imuout);
     default:
-      return stp();
+      return stp(imuout);
   }
 
+  //Check if any of the limit switches have been triggered in order to reset all the motors
   for (int i=0; i<8; i++){
-    if (lsout[i] = TRUE) {
-      motorReset();
+    if (lsout[i] == true) {
+      motorReset(imuout);
     }
   }
+  
 }
 
 int16_t *fwd(float imuout) {
@@ -49,3 +53,5 @@ int16_t *stp(float imuout) {
 }
 
 int16_t *motorReset(float imuout) {
+
+}

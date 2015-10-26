@@ -1,11 +1,6 @@
 // SoftwareSerial is used to communicate with the XBee
 #include <SoftwareSerial.h>
 
-// Create array to store last received command
-typedef enum {
-  FWD,BACK,STP,NONE
-} state_t;
-
 char c = ' ';
 SoftwareSerial XBee(2, 3); // Arduino RX, TX (XBee Dout, Din)
 
@@ -17,17 +12,16 @@ void XBsetup() {
   // Initialize Bee Software Serial port. Make sure the baud
   // rate matches your XBee setting (9600 is default).
   Serial.begin(9600); 
-  printMenu(); // Print a helpful menu
 }
 
 // ================================================================
-// ===                    MAIN PROGRAM LOOP                     ===
+// ===                    XBEE PROGRAM LOOP                     ===
 // ================================================================
 
-state_t XBloop() {
+byte XBloop() {
   // if data is avalailable from the Serial port (XBee), go 
   // through cases and change state to change function of blob 
-  if (Serial.available()){
+  if (Serial.available()) {
     char c = Serial.read();
     switch (c)
       {
@@ -42,6 +36,5 @@ state_t XBloop() {
           return STP;    // Set state to STOP
       }
   }
-  return NONE 
+  return NONE;
 }
-
