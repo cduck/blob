@@ -43,7 +43,7 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
-float ypr[30];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 
 
@@ -190,9 +190,9 @@ float IMUloop(bool *thing) {
         // display Euler angles in degrees
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr+20, &q, &gravity);
+        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
         // filter out anything smaller than -180 or greater than 180
-        return ypr[20]; //* 180/M_PI;
+        return ypr[0]; //* 180/M_PI;
 
     }
 }
