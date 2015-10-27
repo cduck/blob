@@ -43,7 +43,7 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+float ypr[30];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 
 
@@ -142,9 +142,11 @@ void IMUsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-float IMUloop() {
+float IMUloop(bool *thing) {
     // if programming failed, don't try to do anything
-    //if (!dmpReady) return;
+    if (!dmpReady) {
+      return NAN;
+    }
 
     // wait for MPU interrupt or extra packet(s) available
     while (!mpuInterrupt && fifoCount < packetSize) {
@@ -186,20 +188,11 @@ float IMUloop() {
         fifoCount -= packetSize;
 
         // display Euler angles in degrees
-        unsigned long t = micros();
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-        t = micros() - t;
-        Serial.print(t);
-        Serial.print("\t");
-        Serial.print("ypr\t");
-        Serial.print(ypr[0] * 180/M_PI);
-        Serial.print("\t");
-        Serial.print(ypr[1] * 180/M_PI);
-        Serial.print("\t");
-        Serial.println(ypr[2] * 180/M_PI);
-        return ypr[0] * 180/M_PI;
+        mpu.dmpGetYawPitchRoll(ypr+20, &q, &gravity);
+        // filter out anything smaller than -180 or greater than 180
+        return ypr[20]; //* 180/M_PI;
 
     }
 }

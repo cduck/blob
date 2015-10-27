@@ -13,6 +13,9 @@ void setup() {
 // ================================================================
 
 void loop() {
-  float imuresult = IMUloop();
-  Serial.println(imuresult);
+  bool thing;
+  float imuresult = IMUloop(&thing);
+  uint32_t *a;
+  a = (uint32_t*)(void*)&imuresult;
+  Serial.println(*a, HEX);
 }
