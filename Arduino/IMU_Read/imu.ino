@@ -142,9 +142,9 @@ void IMUsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-void IMUloop() {
+float IMUloop() {
     // if programming failed, don't try to do anything
-    if (!dmpReady) return;
+    //if (!dmpReady) return;
 
     // wait for MPU interrupt or extra packet(s) available
     while (!mpuInterrupt && fifoCount < packetSize) {
@@ -199,6 +199,7 @@ void IMUloop() {
         Serial.print(ypr[1] * 180/M_PI);
         Serial.print("\t");
         Serial.println(ypr[2] * 180/M_PI);
+        return ypr[0] * 180/M_PI;
 
     }
 }

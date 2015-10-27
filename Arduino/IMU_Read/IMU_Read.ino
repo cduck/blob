@@ -13,5 +13,6 @@ void setup() {
 // ================================================================
 
 void loop() {
-  IMUloop();
+  float imuresult = IMUloop();
+  Serial.println(imuresult);
 }
