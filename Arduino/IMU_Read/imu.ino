@@ -1,3 +1,5 @@
+// I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
+// for both classes must be in the include path of your project
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -34,11 +36,6 @@ MPU6050 mpu;
    http://code.google.com/p/arduino/issues/detail?id=958
  * ========================================================================= */
 
-// uncomment "OUTPUT_READABLE_YAWPITCHROLL" if you want to see the yaw/
-// pitch/roll angles (in degrees) calculated from the quaternions coming
-// from the FIFO. Note this also requires gravity vector calculations.
-// Also note that yaw/pitch/roll angles suffer from gimbal lock (for
-// more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
 #define OUTPUT_READABLE_YAWPITCHROLL
 
 // MPU control/status vars
@@ -53,6 +50,8 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
+
 
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
@@ -140,6 +139,7 @@ void IMUsetup() {
         Serial.print(devStatus);
         Serial.println(F(")"));
     }
+
 }
 
 
@@ -206,7 +206,7 @@ void IMUloop() {
             Serial.print(ypr[1] * 180/M_PI);
             Serial.print("\t");
             Serial.println(ypr[2] * 180/M_PI);
-            //return ypr[0];
         #endif
+
     }
 }
