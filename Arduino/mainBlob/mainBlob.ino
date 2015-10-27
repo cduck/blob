@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   byte xbcmd = XBLoop();
-  float imuout = IMULoop();
+  //float imuout = IMULoop();
   int16_t *motor = MCLoop(xbcmd,imuout,lsGet());
   Gloop();
   
