@@ -21,13 +21,17 @@ void setup() {
 // ================================================================
 
 void loop() {
-  byte xbcmd = XBLoop();
+  byte xbcmd = XBLoop(); // Check if there's a command from the XBee
+  
   //float imuout = IMULoop();
+
   int16_t *motor = MCLoop(xbcmd,imuout,lsGet());
   Gloop();
   
 }
 
+// Get a Boolean array to check if any of the limit switches have
+// been triggered by a foot plate. 
 bool *lsGet() {
   static bool switches[8] = {false};
 
@@ -35,15 +39,3 @@ bool *lsGet() {
 
   return switches;
 }
-
-/* switch (state) {
-    case FWD:
-      returnfwd();
-      break;
-    case BACK:
-      back();
-      break;
-    default:
-      stp();
-      break;
-  }*/
