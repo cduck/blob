@@ -12,7 +12,18 @@ void setup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
+bool ready;
+
 void loop() {
-  bool thing;
-  float imuresult = IMUloop(&thing);
+
+  float imuresult = IMUloop(&ready);
+  //Serial.print("\t");
+  //Serial.print(imuresult);
+  //Serial.print("\t");
+  //Serial.println(ready);
+  if (ready) {
+    Serial.println(imuresult);
+  } else {
+    Serial.println("NOT READY");
+  }
 }

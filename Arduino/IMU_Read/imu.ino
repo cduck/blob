@@ -45,6 +45,9 @@ Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
+// test to see if ready
+float prev[3];
+
 
 
 // ================================================================
@@ -119,7 +122,7 @@ void IMUsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-float IMUloop(bool *thing) {
+float IMUloop(bool *ready) {
     // if programming failed, don't try to do anything
     if (!dmpReady) {
       return NAN;
@@ -181,7 +184,18 @@ float IMUloop(bool *thing) {
             result = -180 - roll;
           }
         }
-        Serial.println(result);
+        Serial.print(result);
+        if (prev[0] == result && prev[1] == result && prev[2] == result) { // was not previously ready, now is ready
+          *ready = true;
+          //Serial.print("\t");
+          //Serial.print("WE ARE READY");
+        }
+        
+        // shifting values
+        prev[0] = prev[1];
+        prev[1] = prev[2];
+        prev[2] = result;
+        
         return result;
         // result jumps from ~72 to ~107
     }
