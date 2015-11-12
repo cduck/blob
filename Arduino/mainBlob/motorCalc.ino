@@ -1,4 +1,9 @@
+#include <math.h>
 int16_t motor[4] = {0,0,0,0};
+// Create array to enumerate received command
+typedef enum {
+  RST,WAIT,FWD
+} motorState_t;
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
@@ -17,11 +22,12 @@ int16_t *MCLoop(byte xbcmd,float imuout, bool *lsout) {
 
   // If there is a new command from the XBee, change the current 
   // state for calculating motor distances.
+  
   if (xbcmd != NONE) {
     state = xbcmd;
   }
 
-  if (imuout == NAN) {
+  if (isnan(imuout)) {
     
   }
 
@@ -45,7 +51,7 @@ int16_t *MCLoop(byte xbcmd,float imuout, bool *lsout) {
 }
 
 int16_t *fwd(float imuout) {
-  // calc
+  //calc
 }
 
 int16_t *back(float imuout) {
