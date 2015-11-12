@@ -77,8 +77,8 @@ void IMUsetup() {
     // initialize serial communication
     // (115200 chosen because it is required for Teapot Demo output, but it's
     // really up to you depending on your project)
-    Serial.begin(115200);
-    while (!Serial); // wait for Leonardo enumeration, others continue immediately
+    //Serial.begin(115200);
+    //while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
     // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
     // Pro Mini running at 3.3v, cannot handle this baud rate reliably due to
@@ -153,7 +153,6 @@ float IMUloop(bool *ready) {
     if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
         // reset so we can continue cleanly
         mpu.resetFIFO();
-        Serial.println(F("FIFO overflow!"));
 
     // otherwise, check for DMP data ready interrupt (this should happen frequently)
     } else if (mpuIntStatus & 0x02) {
@@ -184,11 +183,8 @@ float IMUloop(bool *ready) {
             result = -180 - roll;
           }
         }
-        Serial.print(result);
         if (prev[0] == result && prev[1] == result && prev[2] == result) { // was not previously ready, now is ready
           *ready = true;
-          //Serial.print("\t");
-          //Serial.print("WE ARE READY");
         }
         
         // shifting values
