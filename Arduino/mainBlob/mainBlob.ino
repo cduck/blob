@@ -20,9 +20,12 @@ void setup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
+// boolean to see if the IMU is initialized fully
+bool ready;
+
 void loop() {
   byte xbcmd = XBLoop();
-  //float imuout = IMULoop();
+  float imuout = IMULoop(&ready);
   int16_t *motor = MCLoop(xbcmd,imuout,lsGet());
   Gloop();
   
