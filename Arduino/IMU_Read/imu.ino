@@ -186,11 +186,16 @@ float IMUloop(bool *ready) {
         if (prev[0] == result && prev[1] == result && prev[2] == result) { // was not previously ready, now is ready
           *ready = true;
         }
+
+        if (!*ready) {
+          // shifting values
+          prev[0] = prev[1];
+          prev[1] = prev[2];
+          prev[2] = result;
+          Serial.print("\t");
+          Serial.print("shifting");
+        }
         
-        // shifting values
-        prev[0] = prev[1];
-        prev[1] = prev[2];
-        prev[2] = result;
         
         return result;
         // result jumps from ~72 to ~107
