@@ -7,29 +7,13 @@
     #include "Wire.h"
 #endif
 
-// class default I2C address is 0x68
-// specific I2C addresses may be passed as a parameter here
-// AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
-// AD0 high = 0x69
 MPU6050 mpu;
-//MPU6050 mpu(0x69); // <-- use for AD0 high
 
 /* =========================================================================
    NOTE: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
    depends on the MPU-6050's INT pin being connected to the Arduino's
    external interrupt #0 pin. On the Arduino Uno and Mega 2560, this is
    digital I/O pin 2.
- * ========================================================================= */
-
-/* =========================================================================
-   NOTE: Arduino v1.0.1 with the Leonardo board generates a compile error
-   when using Serial.write(buf, len). The Teapot output uses this method.
-   The solution requires a modification to the Arduino USBAPI.h file, which
-   is fortunately simple, but annoying. This will be fixed in the next IDE
-   release. For more info, see these links:
-
-   http://arduino.cc/forum/index.php/topic,109987.0.html
-   http://code.google.com/p/arduino/issues/detail?id=958
  * ========================================================================= */
 
 // MPU control/status vars
@@ -48,8 +32,6 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 // test to see if ready
 float prev[3];
 
-
-
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -58,8 +40,6 @@ volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin h
 void dmpDataReady() {
     mpuInterrupt = true;
 }
-
-
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
@@ -73,18 +53,6 @@ void IMUsetup() {
     #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
         Fastwire::setup(400, true);
     #endif
-
-    // initialize serial communication
-    // (115200 chosen because it is required for Teapot Demo output, but it's
-    // really up to you depending on your project)
-    //Serial.begin(115200);
-    //while (!Serial); // wait for Leonardo enumeration, others continue immediately
-
-    // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
-    // Pro Mini running at 3.3v, cannot handle this baud rate reliably due to
-    // the baud timing being too misaligned with processor ticks. You must use
-    // 38400 or slower in these cases, or use some kind of external separate
-    // crystal solution for the UART timer.
 
     // initialize device
     mpu.initialize();
@@ -187,12 +155,13 @@ float IMUloop(bool *ready) {
           *ready = true;
         }
         
-        // shifting values
-        prev[0] = prev[1];
-        prev[1] = prev[2];
-        prev[2] = result;
+        if (!*ready) {
+          // shifting values
+          prev[0] = prev[1];
+          prev[1] = prev[2];
+          prev[2] = result;
+        }
         
         return result;
-        // result jumps from ~72 to ~107
     }
 }
