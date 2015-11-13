@@ -22,8 +22,10 @@ void loop() {
   //Serial.print("\t");
   //Serial.println(ready);
   if (ready) {
-    Serial.println(imuresult);
+   Serial.print("\t");
+   Serial.println(imuresult);
   } else {
+    Serial.print("\t");
     Serial.println("NOT READY");
   }
 }
