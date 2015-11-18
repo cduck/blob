@@ -1,0 +1,43 @@
+variables:
+state // current state
+ready // true if IMU is ready
+motorReady // true if motor is ready
+xbcmd //input state
+
+
+if (!ready || !motorReady) {
+	// if the imu or motor is not ready, still in initializing state
+	state == RESET;
+	break;
+} else if (xbcmd == FWD) {
+	state = FWD;
+	break;
+} else if (xbcmd == BACK) {
+	state = BACK;
+} else if (xbcmd == STOP) {
+	state = STOP;
+}
+
+switch (state) {
+	case RESET:
+		// reset plates
+		break;
+	case FWD:
+		// move motors forward
+		break;
+	case BACK:
+		// move motors backward
+		break;
+	case STOP:
+		// stop motors
+		break;
+	default:
+		// stop motors b/c invalid state
+		break;
+}
+
+states:
+RESET
+FWD
+BACK
+STOP
