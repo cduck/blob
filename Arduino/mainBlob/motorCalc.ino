@@ -24,6 +24,7 @@ int16_t motor[4] = {0,0,0,0};
 #define STATE_FWD 1
 #define STATE_BKWD 2
 #define STATE_BRAKE 3
+#define STATE_CENTERED 4
 
 byte state = STATE_RST;
 
@@ -41,62 +42,92 @@ void MCSetup() {
 // ================================================================
 
 float *MCLoop(byte xbcmd,float imuout, bool *lsout) {
-  static int targetAngle = 0;
-  static unsigned long lastTime = millis();
-  unsigned long currentTime = millis();
-  if(currentTime - lastTime >= 500) {
-    if (isHomed()) {
-      targetAngle += 1;
-      if(targetAngle >= 360) {
-        targetAngle -= 360;
-      }
-    }
-    lastTime = currentTime;
-  }
+//  static int targetAngle = 0;
+//  static unsigned long lastTime = millis();
+//  unsigned long currentTime = millis();
+//  if(currentTime - lastTime >= 500) {
+//    if (isHomed()) {
+//      targetAngle += 1;
+//      if(targetAngle >= 360) {
+//        targetAngle -= 360;
+//      }
+//    }
+//    lastTime = currentTime;
+//  }
   //Serial.print(targetAngle);
 
 
 
-  float *positions = calcPositions(targetAngle);
-  
-  //static float ppp[4] = {0,0,0,0};
-  
-  return positions;
-  
+//  float *positions = calcPositions(targetAngle);
+//  
+//  //
+//  
+//  return positions;
 
-  // TODO: Add state machine and use XBee commands
-
-
-  /*
-  if (isnan(imuout)) {
-    
+  static float centeredMotors[4] = {0,0,0,0};
+  static float resetMotors[4] = {NAN,NAN,NAN,NAN};
+  
+  if (!ready || !isHomed()) {
+    // if the imu or motor is not ready, still in initializing state
+    state = STATE_RST;
+  } 
+  else if (state == STATE_RST && ready && isHomed()) {
+    state = STATE_CENTERED;
+  }
+  else if (xbcmd == XBEE_FWD) {
+    state = STATE_FWD;
+  } 
+  else if (xbcmd == XBEE_BACK) {
+    state = STATE_BKWD;
+  } 
+  else if (xbcmd == XBEE_STP) {
+    state = STATE_BRAKE;
+  }
+  else if (xbcmd == XBEE_NONE) {
+    // no state change
+  }
+  
+  switch (state) {
+    case STATE_RST:
+      // reset plates
+      return resetMotors;
+    case STATE_CENTERED:
+      // center plates
+      return centeredMotors;
+    case STATE_FWD:
+      // move forward
+      return fwd(imuout);
+      break;
+    case STATE_BKWD:
+      // move backward
+      return back(imuout);
+      break;
+    case STATE_BRAKE:
+      // stop moving
+      return stp(imuout);
+      break;
+    default:
+      // do nothing
+      return resetMotors;
+      break;
   }
 
-  // Return an array of motor values using the functions below
-  switch (state) {
-    case FWD:
-      return fwd(imuout);
-    case BACK:
-      return back(imuout);
-    default:
-      return stp(imuout);
-  }*/
 }
 
-int16_t *fwd(float imuout) {
-  //calc
+float *fwd(float imuout) {
+  //return calcPositions();
+  Serial.print("Current angle: ");
+  Serial.println((int32_t)imuout);
 }
 
-int16_t *back(float imuout) {
-  //calc
+float *back(float imuout) {
+  Serial.print("Current angle: ");
+  Serial.println((int32_t)imuout);
 }
 
-int16_t *stp(float imuout) {
-  //calc
-}
-
-int16_t *motorReset(float imuout) {
-
+float *stp(float imuout) {
+  Serial.print("Current angle: ");
+  Serial.println((int32_t)imuout);
 }
 
 void domainAndOffset(int angle, int *domain, int *offset) {

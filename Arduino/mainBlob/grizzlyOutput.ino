@@ -165,6 +165,9 @@ void GLoop(float *positions) {
 
 
 bool setRealPosition(byte motorI, float inches, byte *limitSwitches) {
+  if (isnan(inches)) {
+    return true;
+  }
   int32_t targetScale = (int32_t)(inches * ENCODER_SCALING_FACTOR);
   if (targetScale > MOTOR_MAX_EXTENT || targetScale < -MOTOR_MAX_EXTENT) {
     sendRawSpeed(MOTORS[motorI], 0);
