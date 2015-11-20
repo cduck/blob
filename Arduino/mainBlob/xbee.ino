@@ -27,14 +27,14 @@ byte XBLoop() {
       {
         case 'f':      // If received 'f'
           Serial.println("Rolling forward...");
-          return FWD;    // Set state to FWD
+          return XBEE_FWD;    // Set state to FWD
         case 'b':      // If received 'b'
           Serial.println("Rolling backward...");
-          return BACK;   // Set state to BACK
+          return XBEE_BACK;   // Set state to BACK
         case 's':      // If received 's'
           Serial.println("Stopping the blob");
-          return STP;    // Set state to STOP
+          return XBEE_STP;    // Set state to STOP
       }
   }
-  return NONE; // Default case is no change
+  return XBEE_NONE; // Default case is no change
 }

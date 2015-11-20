@@ -45,7 +45,7 @@ void dmpDataReady() {
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 
-void IMUsetup() {
+void IMUSetup() {
     // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         Wire.begin();
@@ -90,7 +90,7 @@ void IMUsetup() {
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-float IMUloop(bool *ready) {
+float IMULoop(bool *ready) {
     // if programming failed, don't try to do anything
     if (!dmpReady) {
       return NAN;
@@ -123,7 +123,8 @@ float IMUloop(bool *ready) {
         mpu.resetFIFO();
 
     // otherwise, check for DMP data ready interrupt (this should happen frequently)
-    } else if (mpuIntStatus & 0x02) {
+    } else {
+      if (mpuIntStatus & 0x02) {
         // wait for correct available data length, should be a VERY short wait
         while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
@@ -163,5 +164,6 @@ float IMUloop(bool *ready) {
         }
         
         return result;
+      }
     }
 }
