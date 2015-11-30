@@ -14,31 +14,19 @@ void setup() {
   GSetup();
 }
 
-// boolean to see if the IMU is initialized fully
-bool ready;
-
 // ================================================================
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 void loop() {
   byte xbcmd = XBLoop(); // Check if there's a command from the XBee
-  float imuout = IMULoop(&ready);
-  float *positions = MCLoop(xbcmd,imuout,lsGet());
+  bool ready = false;  // boolean to see if the IMU is initialized fully
+  float imuout = 0;//IMULoop(&ready);
+  float *positions = MCLoop(xbcmd,imuout,ready||true);
 //  for (int i=0; i<4; i++) {
 //    Serial.print(positions[i]);
 //    Serial.print(", ");
 //  }
 //  Serial.println();
-  //delay(100);
   GLoop(positions);
 }
 
-// Get a Boolean array to check if any of the limit switches have
-// been triggered by a foot plate. 
-bool *lsGet() {
-  static bool switches[8] = {false};
-
-  //...
-
-  return switches;
-}
