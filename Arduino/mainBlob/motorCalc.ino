@@ -1,7 +1,7 @@
 #include <math.h>
 
 // Adjustable constants
-#define mech_heightOffGround 9.0  // Control how high the center of mass is lifted off the ground
+#define mech_heightOffGround 8.0  // Control how high the center of mass is lifted off the ground
 
 // Mechanism measurements
 #define mech_lenRod 18.5
@@ -10,13 +10,15 @@
 #define mech_rOuter (mech_lenRod - mech_rInner)
 #define mech_rCenter (mech_lenRod/2)
 #define mech_numFeet (mech_numMotors*2)
-#define mech_rCurveFeet 4.0
+#define mech_rCurveFeet 4
 #define mech_minLiftAngle 25  // Not used, 15 to 20 according to Anthony
 #define mech_motorAngle (360.0/mech_numFeet)
 #define mech_angleBetween (360.0/mech_numFeet)
 #define mech_angleBetween_2 (mech_angleBetween/2)
 
 
+#define MOTOR_SPEED 6  // Degrees per second
+#define START_ANG 0
 
 int16_t motor[4] = {0,0,0,0};
 // Create array to enumerate received command
@@ -27,6 +29,12 @@ int16_t motor[4] = {0,0,0,0};
 #define STATE_CENTERED 4
 
 byte state = STATE_RST;
+
+static float centeredMotors[4] = {0,0,0,0};
+static float resetMotors[4] = {NAN,NAN,NAN,NAN};
+
+float storedAngle;
+unsigned long lastTime = 0;
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
@@ -54,25 +62,28 @@ float *MCLoop(byte xbcmd,float imuout, bool ready) {
 //    }
 //    lastTime = currentTime;
 //  }
-//  //Serial.print(targetAngle);
+//  //PRINT(targetAngle);
 //  
 //  float *positions = calcPositions(targetAngle);
 //  
 //  return positions;
 
-  static float centeredMotors[4] = {0,0,0,0};
-  static float resetMotors[4] = {NAN,NAN,NAN,NAN};
+  unsigned long currentTime = micros();
+  unsigned long timeDiff = currentTime - lastTime;
+  lastTime = currentTime;
 
-  static bool storeReady = false;
+  static bool storeReady = true;
   if (ready) {
     storeReady = true;
   }
   if (!storeReady || !isHomed()) {
     // if the imu or motor is not ready, still in initializing state
     state = STATE_RST;
+    storedAngle = START_ANG;
   } 
   else if (state == STATE_RST && storeReady && isHomed()) {
     state = STATE_CENTERED;
+    storedAngle = START_ANG;
   }
   else if (xbcmd == XBEE_FWD) {
     state = STATE_FWD;
@@ -83,33 +94,46 @@ float *MCLoop(byte xbcmd,float imuout, bool ready) {
   else if (xbcmd == XBEE_STP) {
     state = STATE_BRAKE;
   }
+  else if (xbcmd == XBEE_CENTER) {
+    state = STATE_CENTERED;
+    storedAngle = START_ANG;
+  }
   else if (xbcmd == XBEE_NONE) {
     // no state change
   }
-  Serial.print("STATE ");
-  Serial.print(ready ? "ready, " : "not ready, ");
-  Serial.println(state);
+  PRINT("STATE ");
+  PRINT(ready ? "ready, " : "not ready, ");
+  PRINT(storedAngle);
+  PRINT(", ");
+  PRINTln(state);
 
   //return centeredMotors;
   
   switch (state) {
     case STATE_RST:
       // reset plates
+      storedAngle = START_ANG;
       return resetMotors;
     case STATE_CENTERED:
       // center plates
+      storedAngle = START_ANG;
       return centeredMotors;
     case STATE_FWD:
       // move forward
-      return fwd(imuout);
+      storedAngle += timeDiff / 1000000.0 * MOTOR_SPEED;
+      if (storedAngle >= 360) storedAngle -= 360;
+      return fwd(storedAngle);
       break;
     case STATE_BKWD:
       // move backward
-      return back(imuout);
+      storedAngle -= timeDiff / 1000000.0 * MOTOR_SPEED;
+      if (storedAngle < 0) storedAngle += 360;
+      return back(storedAngle);
       break;
     case STATE_BRAKE:
       // stop moving
-      return stp(imuout);
+      // Constant storedAngle
+      return stp(storedAngle);
       break;
     default:
       // do nothing
@@ -119,25 +143,24 @@ float *MCLoop(byte xbcmd,float imuout, bool ready) {
 }
 
 float *fwd(float imuout) {
-  //return calcPositions();
-  Serial.print("Current angle: ");
-  Serial.println((int32_t)imuout);
-  static float centeredMotors[4] = {0,0,0,0};
-  return centeredMotors;
+  if (isnan(imuout)) {
+    return resetMotors;
+  }
+  return calcPositions(imuout);
 }
 
 float *back(float imuout) {
-  Serial.print("Current angle: ");
-  Serial.println((int32_t)imuout);
-  static float centeredMotors[4] = {0,0,0,0};
-  return centeredMotors;
+  if (isnan(imuout)) {
+    return resetMotors;
+  }
+  return calcPositions(imuout);
 }
 
 float *stp(float imuout) {
-  Serial.print("Current angle: ");
-  Serial.println((int32_t)imuout);
-  static float centeredMotors[4] = {0,0,0,0};
-  return centeredMotors;
+  if (isnan(imuout)) {
+    return resetMotors;
+  }
+  return calcPositions(imuout);
 }
 
 void domainAndOffset(int angle, int *domain, int *offset) {
@@ -147,10 +170,10 @@ void domainAndOffset(int angle, int *domain, int *offset) {
   *domain = a/((int)(mech_angleBetween)) % mech_numFeet;
   //*offset = (angle+domain*angleBetween-360) % 360
   *offset = (((int)angle)+*domain*(int)(mech_angleBetween)) % 360;
-//  Serial.print(" dom=");
-//  Serial.print(*domain);
-//  Serial.print(" off=");
-//  Serial.print(*offset);
+//  PRINT(" dom=");
+//  PRINT(*domain);
+//  PRINT(" off=");
+//  PRINT(*offset);
 }
 float *calcPositionsFromOffset(int offset) {
   float h = mech_heightOffGround;
@@ -163,12 +186,12 @@ float *calcPositionsFromOffset(int offset) {
   float a_0 = (h-x_0)/cos(t_0);
   float a_1 = (h-x_1)/cos(t_1);
   float a_nm1 = (h-x_nm1)/cos(t_nm1);
-//  Serial.print(" A0=");
-//  Serial.print(a_0);
-//  Serial.print(" A1=");
-//  Serial.print(a_1);
-//  Serial.print(" AN1=");
-//  Serial.println(a_0);
+//  PRINT(" A0=");
+//  PRINT(a_0);
+//  PRINT(" A1=");
+//  PRINT(a_1);
+//  PRINT(" AN1=");
+//  PRINTln(a_0);
   static float motors[mech_numMotors];
   for (int i=2; i<mech_numMotors-1; i++) {
     motors[i] = 0;
@@ -187,6 +210,7 @@ float *calcPositionsFromOffset(int offset) {
   return motors;
 }
 float *calcPositions(int angle) {
+  angle = angle%360;
   int domain, offset;
   domainAndOffset(angle, &domain, &offset);
   float *motorsDomain = calcPositionsFromOffset(offset);

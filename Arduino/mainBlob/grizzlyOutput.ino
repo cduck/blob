@@ -7,6 +7,8 @@
 #define MOTOR3 0x0D
 #define PID_THRESHOLD 400  // Use PID when error is less than one inch.
 
+#define MOTOR_DUTY 70
+
 #define NUM_MOTORS 4
 const byte MOTORS[NUM_MOTORS] = {MOTOR0,MOTOR1,MOTOR2,MOTOR3};
 const byte reverseMotor[NUM_MOTORS] = {false, false, true, false};
@@ -54,49 +56,49 @@ void GSetup() {
   Wire.begin();
   Serial.begin(9600);
 //  
-//  Serial.println("1");
+//  PRINTln("1");
 //  Wire.beginTransmission(0x0A);
 //  
-//  Serial.println("2");
+//  PRINTln("2");
 //  byte data[] = {1,3,0,0,0,0,100,0,0};
 //  
-//  Serial.println("3");
+//  PRINTln("3");
 //  Wire.write(data, sizeof(data));
 //  
-//  Serial.println("4");
+//  PRINTln("4");
 //  Wire.endTransmission();
 //  
-//  Serial.println("5");
+//  PRINTln("5");
 
   for (int i = 0; i < NUM_MOTORS*2; i++) {
     pinMode(limitSwitches[i], INPUT_PULLUP);
     if (digitalRead(limitSwitches[i]) == LOW) {
-      Serial.print("Limit switch ");
-      Serial.print(i/2);
+      PRINT("Limit switch ");
+      PRINT(i/2);
       static char a[] = "A";
       a[0] = 'A'+(i%2);
-      Serial.print(a);
-      Serial.println(" pressed");
+      PRINT(a);
+      PRINTln(" pressed");
     }else {
-      Serial.print("Limit switch ");
-      Serial.print(i/2);
+      PRINT("Limit switch ");
+      PRINT(i/2);
       static char a[] = "A";
       a[0] = 'A'+(i%2);
-      Serial.print(a);
-      Serial.println(" not pressed");
+      PRINT(a);
+      PRINTln(" not pressed");
     }
   }
-  Serial.println();
+  PRINTln();
   //delay(1000);
 
-  /*Serial.println("Running Motor 0");
+  /*PRINTln("Running Motor 0");
   int n = 3;
   sendMode(MOTORS[n], 0x13); //0x3 for raw speed, 0x5 for pid speed, 0x7 for pid pos
   sendCurrentLimit(MOTORS[n], lim);
   sendPosition(MOTORS[n], 100L*0x10000);
   delay(200);
   sendPosition(MOTORS[n], 0L*0x10000L);
-  Serial.println("Done");*/
+  PRINTln("Done");*/
  
   for (int i = 0; i < NUM_MOTORS; i++) {
     byte addr = MOTORS[i];
@@ -118,36 +120,36 @@ void GLoop(float *positions) {
 
   byte *switches = readLimitSwitches();
   /*for (int i=0; i<NUM_MOTORS*2; i++) {
-    Serial.println(switches[i]);
+    PRINTln(switches[i]);
   }*/
 
   int32_t a;
   readEncoderPos(MOTORS[1], &a);
-  Serial.print("ENC ");
-  Serial.println(a);
+  PRINT("ENC ");
+  PRINTln(a);
   
   static bool done = false;
   if (!done) {
     done = isHomedVar = homeMotors(switches);
-    Serial.println(done ? "Done homing" : "Still homing");
+    PRINTln(done ? "Done homing" : "Still homing");
     int32_t pos = 0;
     for (int i=0; i<NUM_MOTORS; i++) {
       if (readEncoderPos(MOTORS[i], &pos)) {
-        Serial.println(pos);
+        PRINTln(pos);
       } else {
-        Serial.println("FAILED TO READ ENCODER");
+        PRINTln("FAILED TO READ ENCODER");
       }
     }
     if(done) {
-      Serial.println("OFFSET");
+      PRINTln("OFFSET");
       for (int i=0; i<NUM_MOTORS; i++) {
-        Serial.println(motorEncOffset[i]);
+        PRINTln(motorEncOffset[i]);
       }
-      Serial.println("ENC");
+      PRINTln("ENC");
       for (int i=0; i<NUM_MOTORS; i++) {
         int32_t a;
         readEncoderPos(MOTORS[i], &a);
-        Serial.println(a);
+        PRINTln(a);
       }
       //while (1) {}
     }
@@ -156,8 +158,8 @@ void GLoop(float *positions) {
       float target = positions[i];
       if (setRealPosition(i, target, switches)) {
       }else {
-        //Serial.print("FAILED TO SET POSITION TO ");
-        //Serial.println(target);
+        //PRINT("FAILED TO SET POSITION TO ");
+        //PRINTln(target);
       }
     }
   }
@@ -190,12 +192,12 @@ bool setRealPosition(byte motorI, float inches, byte *limitSwitches) {
       //sendPosition(MOTORS[motorI], targetPos);
       sendRawSpeed(MOTORS[motorI], 0);
     }else {
-      sendRawSpeed(MOTORS[motorI], error > 0 ? 50 : -50);
-//      Serial.print(currentPos);
-//      Serial.print(", ");
-//      Serial.println(targetPos);
-//      Serial.print(", ");
-//      Serial.println(motorEncOffset[motorI]);
+      sendRawSpeed(MOTORS[motorI], error > 0 ? MOTOR_DUTY : -MOTOR_DUTY);
+//      PRINT(currentPos);
+//      PRINT(", ");
+//      PRINTln(targetPos);
+//      PRINT(", ");
+//      PRINTln(motorEncOffset[motorI]);
     }
     return true;
   }else {
@@ -223,7 +225,7 @@ bool homeMotors(byte *limitSwitches) {
         motorEncOffset[i] = pos;// + MOTOR_HOME_OFFSET;
       }
     }else {
-      sendRawSpeed(MOTORS[i], reverse ? 50 : -50);
+      sendRawSpeed(MOTORS[i], reverse ? MOTOR_DUTY : -MOTOR_DUTY);
       done = false;
     }
   }

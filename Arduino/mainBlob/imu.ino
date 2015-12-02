@@ -163,7 +163,7 @@ float IMULoop(bool *ready) {
           prev[2] = result;
         }
 
-        Serial.println(*ready ? "READY" : "READY");
+        PRINTln(*ready ? "READY" : "READY");
         
         return result;
       }

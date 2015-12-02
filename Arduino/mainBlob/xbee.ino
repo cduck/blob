@@ -26,14 +26,17 @@ byte XBLoop() {
     switch (c)
       {
         case 'f':      // If received 'f'
-          Serial.println("Rolling forward...");
+          PRINTln("Rolling forward...");
           return XBEE_FWD;    // Set state to FWD
         case 'b':      // If received 'b'
-          Serial.println("Rolling backward...");
+          PRINTln("Rolling backward...");
           return XBEE_BACK;   // Set state to BACK
         case 's':      // If received 's'
-          Serial.println("Stopping the blob");
+          PRINTln("Stopping the blob");
           return XBEE_STP;    // Set state to STOP
+        case 'c':      // If received 's'
+          PRINTln("Centering the blob");
+          return XBEE_CENTER;    // Set state to STOP
       }
   }
   return XBEE_NONE; // Default case is no change

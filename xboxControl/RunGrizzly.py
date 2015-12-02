@@ -17,6 +17,9 @@ for event in inputs:
     if event.key == "X" and event.is_press():
 	print "Backward"
 	ser.write('b')
+    if event.key == "Y" and event.is_press():
+	print "Center"
+	ser.write('c')
 
 # Appendix: Keys
 # --------------

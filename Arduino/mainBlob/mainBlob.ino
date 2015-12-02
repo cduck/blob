@@ -3,12 +3,16 @@
 #define XBEE_BACK 2
 #define XBEE_STP 3
 #define XBEE_NONE 0
+#define XBEE_CENTER 4
+
+#define PRINT(a) //Serial.print(a)
+#define PRINTln(a) //Serial.println(a)
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 void setup() {
-  IMUSetup();
+  //IMUSetup();
   XBSetup();
   MCSetup();
   GSetup();
@@ -23,10 +27,10 @@ void loop() {
   float imuout = 0;//IMULoop(&ready);
   float *positions = MCLoop(xbcmd,imuout,ready||true);
 //  for (int i=0; i<4; i++) {
-//    Serial.print(positions[i]);
-//    Serial.print(", ");
+//    PRINT(positions[i]);
+//    PRINT(", ");
 //  }
-//  Serial.println();
+//  PRINTln();
   GLoop(positions);
 }
 
