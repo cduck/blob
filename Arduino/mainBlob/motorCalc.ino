@@ -164,16 +164,10 @@ float *stp(float imuout) {
 }
 
 void domainAndOffset(int angle, int *domain, int *offset) {
-  //*domain = int(((360-angle+mech_angleBetween/2.0)/(mech_angleBetween)) % mech_numFeet)
   *domain = 0;
   int a = 360-((int)angle)+(int)(mech_angleBetween_2);
   *domain = a/((int)(mech_angleBetween)) % mech_numFeet;
-  //*offset = (angle+domain*angleBetween-360) % 360
   *offset = (((int)angle)+*domain*(int)(mech_angleBetween)) % 360;
-//  PRINT(" dom=");
-//  PRINT(*domain);
-//  PRINT(" off=");
-//  PRINT(*offset);
 }
 float *calcPositionsFromOffset(int offset) {
   float h = mech_heightOffGround;
@@ -186,12 +180,7 @@ float *calcPositionsFromOffset(int offset) {
   float a_0 = (h-x_0)/cos(t_0);
   float a_1 = (h-x_1)/cos(t_1);
   float a_nm1 = (h-x_nm1)/cos(t_nm1);
-//  PRINT(" A0=");
-//  PRINT(a_0);
-//  PRINT(" A1=");
-//  PRINT(a_1);
-//  PRINT(" AN1=");
-//  PRINTln(a_0);
+  
   static float motors[mech_numMotors];
   for (int i=2; i<mech_numMotors-1; i++) {
     motors[i] = 0;
@@ -221,7 +210,5 @@ float *calcPositions(int angle) {
   }
   return motors;
 }
-
-
 
 
